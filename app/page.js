@@ -99,22 +99,29 @@ function LeadModal({ lead, onClose, onUpdate }) {
                         )}
                         {m.bot && (() => {
                           const botText = m.bot || ''
-                          if (botText.includes('<<=>>>')) {
-                            const products = botText.split('|||').filter(Boolean)
+                          const hasMedia = botText.includes('<<=>>>') || /\|\|\|https?:\/\//.test(botText)
+                          if (hasMedia) {
+                            const rawParts = botText.split('|||').filter(Boolean)
+                            const elements = []
+                            for (const part of rawParts) {
+                              const trimmed = part.trim()
+                              if (/^https?:\/\//.test(trimmed)) {
+                                elements.push({ type: 'image', src: trimmed })
+                              } else if (trimmed.includes('<<=>>>')) {
+                                const [txt, imgUrl] = trimmed.split('<<=>>>')
+                                if (txt.trim()) elements.push({ type: 'text', content: txt.replace(/\*/g, '').trim() })
+                                if (imgUrl?.trim()) elements.push({ type: 'image', src: imgUrl.trim() })
+                              } else if (trimmed) {
+                                elements.push({ type: 'text', content: trimmed.replace(/\*/g, '') })
+                              }
+                            }
                             return (
                               <div className="flex justify-start mb-1">
-                                <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%] shadow-sm space-y-3">
-                                  {products.map((prod, pi) => {
-                                    const parts = prod.split('<<=>>>')
-                                    const txt = parts[0].replace(/\*/g, '').trim()
-                                    const imgUrl = parts[1]?.trim()
-                                    return (
-                                      <div key={pi} className={pi < products.length - 1 ? 'border-b border-gray-100 pb-2' : ''}>
-                                        <p className="whitespace-pre-wrap break-words">{txt}</p>
-                                        {imgUrl && <img src={imgUrl} alt="" className="rounded-lg mt-2 w-full" loading="lazy" onError={(e) => e.target.style.display='none'} />}
-                                      </div>
-                                    )
-                                  })}
+                                <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%] shadow-sm space-y-2">
+                                  {elements.map((el, ei) => el.type === 'image'
+                                    ? <img key={ei} src={el.src} alt="" className="rounded-lg w-full mt-1" loading="lazy" onError={(e) => e.target.style.display='none'} />
+                                    : <p key={ei} className="whitespace-pre-wrap break-words border-t border-gray-100 pt-1 first:border-0 first:pt-0">{el.content}</p>
+                                  )}
                                 </div>
                               </div>
                             )
