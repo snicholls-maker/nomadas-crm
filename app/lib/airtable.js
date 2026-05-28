@@ -77,3 +77,15 @@ export async function addLead({ nombre, telefono, mensaje, campana = '' }) {
   }
   return res.json()
 }
+
+export async function deleteLead(recordId) {
+  const res = await fetch(`${getBaseUrl()}/${recordId}`, {
+    method: 'DELETE',
+    headers: getHeaders(),
+  })
+
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error?.message || 'Error eliminando lead')
+
+  return { success: true }
+}
