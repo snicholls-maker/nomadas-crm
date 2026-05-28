@@ -86,24 +86,47 @@ function LeadModal({ lead, onClose, onUpdate }) {
               return (
                 <div className="mb-4">
                   <p className="text-xs text-gray-500 mb-2 font-medium">💬 Conversación WhatsApp ({msgs.length} mensajes)</p>
-                  <div className="bg-[#e5ddd5] rounded-xl p-3 max-h-72 overflow-y-auto space-y-1">
+                  <div className="bg-[#e5ddd5] rounded-xl p-3 max-h-96 overflow-y-auto space-y-1">
                     {msgs.map((m, i) => (
                       <div key={i}>
                         {m.ts && <p className="text-center text-xs text-gray-500 my-1">{(() => { try { return new Date(m.ts).toLocaleString('es-EC', {timeZone:'America/Guayaquil', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) } catch(e) { return '' } })()}</p>}
                         {m.user && (
                           <div className="flex justify-end mb-1">
-                            <div className="bg-[#dcf8c6] text-gray-800 text-xs rounded-2xl rounded-tr-sm px-3 py-2 max-w-[75%] shadow-sm">
+                            <div className="bg-[#dcf8c6] text-gray-800 text-xs rounded-2xl rounded-tr-sm px-3 py-2 max-w-[80%] shadow-sm whitespace-pre-wrap break-words">
                               {m.user}
                             </div>
                           </div>
                         )}
-                        {m.bot && (
-                          <div className="flex justify-start mb-1">
-                            <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[75%] shadow-sm">
-                              {m.bot}
+                        {m.bot && (() => {
+                          const botText = m.bot || ''
+                          if (botText.includes('<<=>>>')) {
+                            const products = botText.split('|||').filter(Boolean)
+                            return (
+                              <div className="flex justify-start mb-1">
+                                <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[85%] shadow-sm space-y-3">
+                                  {products.map((prod, pi) => {
+                                    const parts = prod.split('<<=>>>')
+                                    const txt = parts[0].replace(/\*/g, '').trim()
+                                    const imgUrl = parts[1]?.trim()
+                                    return (
+                                      <div key={pi} className={pi < products.length - 1 ? 'border-b border-gray-100 pb-2' : ''}>
+                                        <p className="whitespace-pre-wrap break-words">{txt}</p>
+                                        {imgUrl && <img src={imgUrl} alt="" className="rounded-lg mt-2 w-full" loading="lazy" onError={(e) => e.target.style.display='none'} />}
+                                      </div>
+                                    )
+                                  })}
+                                </div>
+                              </div>
+                            )
+                          }
+                          return (
+                            <div className="flex justify-start mb-1">
+                              <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%] shadow-sm whitespace-pre-wrap break-words">
+                                {botText.replace(/\*/g, '')}
+                              </div>
                             </div>
-                          </div>
-                        )}
+                          )
+                        })()}
                       </div>
                     ))}
                   </div>
