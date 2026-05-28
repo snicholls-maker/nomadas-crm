@@ -98,7 +98,13 @@ function LeadModal({ lead, onClose, onUpdate }) {
                           </div>
                         )}
                         {m.bot && (() => {
-                          const botText = m.bot || ''
+                          const rawBot = m.bot || ''
+                          // Handle [FU1]/[FU2] follow-up markers
+                          const fuMatch = rawBot.match(/^\[FU\d+\]\s*/)
+                          const botLabel = fuMatch ? '↩ Follow-up' : null
+                          const botText = fuMatch ? rawBot.slice(fuMatch[0].length) : rawBot
+                          // If it's an image placeholder with no real URL (e.g. "Imagen: - $")
+                          const isImgPlaceholder = /^Imagen:\s*[^h]/i.test(botText.trim()) || botText.trim() === '- $' || botText.trim().startsWith('- $')
                           const hasMedia = botText.includes('<<=>>>') || /\|\|\|https?:\/\//.test(botText)
                           if (hasMedia) {
                             const rawParts = botText.split('|||').filter(Boolean)
@@ -129,7 +135,10 @@ function LeadModal({ lead, onClose, onUpdate }) {
                           return (
                             <div className="flex justify-start mb-1">
                               <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[80%] shadow-sm whitespace-pre-wrap break-words">
-                                {botText.replace(/\*/g, '')}
+                                {botLabel && <span className="text-xs text-gray-400 block mb-1">{botLabel}</span>}
+                                {isImgPlaceholder
+                                  ? <span className="text-gray-400 italic">📷 Imagen enviada</span>
+                                  : botText.replace(/\*/g, '')}
                               </div>
                             </div>
                           )
