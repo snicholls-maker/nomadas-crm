@@ -28,6 +28,14 @@ function timeAgo(dateStr) {
   } catch { return dateStr }
 }
 
+function formatDate(dateStr) {
+if (!dateStr) return ''
+try {
+const d = new Date(dateStr)
+return d.toLocaleString('es-ES', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
+} catch { return dateStr }
+}
+
 function LeadModal({ lead, onClose, onUpdate }) {
   const [estado, setEstado] = useState(lead.estado || 'Nuevo')
   const [notas, setNotas] = useState(lead.notas || '')
@@ -76,7 +84,7 @@ function LeadModal({ lead, onClose, onUpdate }) {
 
           {/* Fecha */}
           <p className="text-xs text-gray-400 mb-4">
-            Contacto: {lead.timestamp} {lead.updatedAt && `· Actualizado: ${lead.updatedAt}`}
+            Contacto: {formatDate(lead.timestamp)} · {timeAgo(lead.timestamp)}
           </p>
 
           {/* Estado */}
