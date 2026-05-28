@@ -47,7 +47,7 @@ export async function getLeads() {
   }))
 }
 
-export async function updateLead(recordId, { estado, notas }) {
+export async function updateLead(recordId, { estado, notas, mensaje }) {
   const url = `${getBaseUrl()}/${recordId}`
   const res = await fetch(url, {
     method: 'PATCH',
