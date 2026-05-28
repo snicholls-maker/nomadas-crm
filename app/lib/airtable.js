@@ -19,8 +19,6 @@ export async function getLeads() {
 
   do {
     const url = new URL(getBaseUrl())
-    url.searchParams.set('sort[0][field]', 'Timestamp')
-    url.searchParams.set('sort[0][direction]', 'desc')
     if (offset) url.searchParams.set('offset', offset)
 
     const res = await fetch(url.toString(), { headers: getHeaders() })
@@ -32,6 +30,9 @@ export async function getLeads() {
     offset = data.offset || null
   } while (offset)
 
+  // Sort by createdTime descending (newest first)
+  allRecords.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+
   return allRecords.map(record => ({
     id: record.id,
     nombre: record.fields.Nombre || '',
@@ -39,7 +40,7 @@ export async function getLeads() {
     mensaje: record.fields.Mensaje || '',
     estado: record.fields.Estado || 'Nuevo',
     notas: record.fields.Notas || '',
-    timestamp: record.fields.Timestamp || '',
+    timestamp: record.createdTime || record.fields.Timestamp || '',
     actualizado: record.fields.Actualizado || '',
     campana: record.fields.Campana || '',
     origen: record.fields.Origen || '',
