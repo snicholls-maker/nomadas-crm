@@ -75,12 +75,49 @@ function LeadModal({ lead, onClose, onUpdate }) {
           </div>
 
           {/* Mensaje */}
-          {lead.mensaje && (
-            <div className="bg-gray-50 rounded-xl p-3 mb-4">
-              <p className="text-xs text-gray-500 mb-1">Primer mensaje</p>
-              <p className="text-sm text-gray-700 italic">"{lead.mensaje}"</p>
-            </div>
-          )}
+          {lead.mensaje && (() => {
+            let msgs = null
+            try {
+              const parsed = JSON.parse(lead.mensaje)
+              if (Array.isArray(parsed) && parsed.length > 0) msgs = parsed
+            } catch(e) {}
+
+            if (msgs) {
+              return (
+                <div className="mb-4">
+                  <p className="text-xs text-gray-500 mb-2 font-medium">💬 Conversación WhatsApp ({msgs.length} mensajes)</p>
+                  <div className="bg-[#e5ddd5] rounded-xl p-3 max-h-72 overflow-y-auto space-y-1">
+                    {msgs.map((m, i) => (
+                      <div key={i}>
+                        {m.ts && <p className="text-center text-xs text-gray-500 my-1">{(() => { try { return new Date(m.ts).toLocaleString('es-EC', {timeZone:'America/Guayaquil', day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) } catch(e) { return '' } })()}</p>}
+                        {m.user && (
+                          <div className="flex justify-end mb-1">
+                            <div className="bg-[#dcf8c6] text-gray-800 text-xs rounded-2xl rounded-tr-sm px-3 py-2 max-w-[75%] shadow-sm">
+                              {m.user}
+                            </div>
+                          </div>
+                        )}
+                        {m.bot && (
+                          <div className="flex justify-start mb-1">
+                            <div className="bg-white text-gray-800 text-xs rounded-2xl rounded-tl-sm px-3 py-2 max-w-[75%] shadow-sm">
+                              {m.bot}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )
+            }
+
+            return (
+              <div className="bg-gray-50 rounded-xl p-3 mb-4">
+                <p className="text-xs text-gray-500 mb-1">Primer mensaje</p>
+                <p className="text-sm text-gray-700 italic">"{lead.mensaje}"</p>
+              </div>
+            )
+          })()}
 
           {/* Fecha */}
           <p className="text-xs text-gray-400 mb-4">
