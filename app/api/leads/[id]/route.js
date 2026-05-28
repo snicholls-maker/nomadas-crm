@@ -5,9 +5,9 @@ export async function PATCH(request, { params }) {
   try {
     const recordId = params.id
     const body = await request.json()
-    const { estado, notas } = body
+    const { estado, notas, mensaje } = body
 
-    await updateLead(recordId, { estado, notas })
+    await updateLead(recordId, { estado, notas, mensaje })
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error updating lead:', error)
