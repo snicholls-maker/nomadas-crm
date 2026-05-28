@@ -49,12 +49,14 @@ export async function getLeads() {
 
 export async function updateLead(recordId, { estado, notas, mensaje }) {
   const url = `${getBaseUrl()}/${recordId}`
+  const fields = { Actualizado: new Date().toISOString() }
+  if (estado !== undefined) fields['Estado'] = estado
+  if (notas !== undefined) fields['Notas'] = notas
+  if (mensaje !== undefined) fields['Mensaje'] = mensaje
   const res = await fetch(url, {
     method: 'PATCH',
     headers: getHeaders(),
-    body: JSON.stringify({
-      fields: { Estado: estado, Notas: notas, Actualizado: new Date().toISOString() }
-    })
+    body: JSON.stringify({ fields })
   })
   if (!res.ok) {
     const data = await res.json()
